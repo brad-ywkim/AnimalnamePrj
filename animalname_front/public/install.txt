@@ -1,0 +1,12 @@
+2024-05-30
+npm install react-router-dom
+npm install axios
+npm install sweetalert2
+
+2024-05-31
+npm install @mui/material @emotion/react @emotion/styled
+npm install @mui/icons-material
+
+2024-06-02
+npm install apexcharts --save
+npm i react-web-share

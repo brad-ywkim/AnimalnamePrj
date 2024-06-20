@@ -1,0 +1,188 @@
+@charset "UTF-8";
+
+/* 기본 색상 */
+:root {
+  --main_01: #0267f3;
+  --main_02: #ff3d00;
+  --main_03: #2f6082;
+  --main_04: #8f8f8f;
+  --main_05: #1065dc;
+
+  --bg_01: #ebf7ff;
+  --bg_02: #ffeaea;
+  --bg_03: #5e5e5ef8;
+
+  --black_01: black;
+
+  --gray_01: #222222;
+  --gray_02: #555555;
+  --gray_03: #717171;
+  --gray_04: #8f8f8f;
+  --gray_05: #b7b7b7;
+  --gray_06: #d6d6d6;
+  --gray_07: #efefef;
+  --gray_08: #ffffff;
+
+  --line_01: #222222;
+  --line_02: #d6d6d6;
+  --line_03: #eaeced;
+  --line_04: #f6f6f6;
+  --line_05: #f8f9fa;
+}
+
+@font-face {
+  font-family: ns-l;
+  src: url(/public/font/NotoSansKR-Light.ttf);
+}
+@font-face {
+  font-family: ns-r;
+  src: url(/public/font/NotoSansKR-Regular.ttf);
+}
+@font-face {
+  font-family: ns-b;
+  src: url(/public/font/NotoSansKR-Bold.ttf);
+}
+@font-face {
+  font-family: ns-eb;
+  src: url(/public/font/NotoSansKR-ExtraBold.ttf);
+}
+@font-face {
+  font-family: ns-black;
+  src: url(/public/font/NotoSansKR-Black.ttf);
+}
+@font-face {
+  font-family: esd-r;
+  src: url(/public/font/EastSeaDokdo-Regular.ttf);
+}
+
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+* {
+  font-family: ns-l;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  background-color: rgba(27, 31, 44);
+}
+
+.wrap {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  color: white;
+  width: 500px;
+  min-width: 360px;
+}
+
+p {
+  line-height: 2;
+}
+
+.header-content img {
+  width: 30px;
+  padding-right: 5px;
+}
+
+header {
+  width: 100%;
+  background-color: #131722;
+  color: white;
+  padding: 20px 30px;
+  text-align: center;
+  font-size: 20px; /* 글자 크기를 조금 더 줄였습니다 */
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+  transition: box-shadow 0.3s ease; /* 부드러운 전환 효과 추가 */
+}
+
+.header-wrap {
+  width: 90%;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
+}
+
+header.scrolled {
+  box-shadow: 0 2px 10px rgba(233, 233, 233, 0.5); /* 스크롤 시 그림자 효과 */
+}
+
+.main-logo span {
+  transition: color 0.3s;
+  font-family: ns-r;
+}
+
+.main-logo:hover {
+  color: #0ce466;
+}
+
+/* Main */
+.main-wrap {
+  flex: 1;
+  width: 100%;
+  background-color: #131722;
+  padding: 30px;
+
+  font-size: 16px; /* 글자 크기를 조금 더 줄였습니다 */
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-menu > ul {
+  display: flex;
+  gap: 20px; /* 간격을 조금 더 줄였습니다 */
+  padding: 0;
+  list-style: none;
+}
+
+.header-menu > ul > li {
+  padding-right: 10px; /* 패딩을 조금 더 줄였습니다 */
+}
+
+.header-menu > ul > li > a {
+  transition: color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 5px; /* 아이콘과 텍스트 간의 간격을 추가했습니다 */
+  font-size: 14px; /* 글자 크기를 조금 더 줄였습니다 */
+}
+
+.header-menu > ul > li > a:hover {
+  color: #0ce466;
+}
+
+/* footer */
+footer {
+  width: 100%;
+  background-color: #131722;
+  border-top: 1px solid rgb(33, 33, 33);
+  text-align: center;
+  padding: 10px 0;
+}
+
+.footer-content {
+  font-size: 10px;
+  color: gray;
+}

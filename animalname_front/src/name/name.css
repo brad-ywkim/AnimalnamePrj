@@ -1,0 +1,125 @@
+/* NameStat */
+.name-stat-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+#search-name-place-holder {
+  font-family: ns-r;
+  font-size: 16px;
+}
+
+#namestat-form {
+  width: 90%;
+}
+
+/* NameStat Table */
+.name-tbl-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  font-size: 16px;
+}
+
+table {
+  width: 90%;
+  border-collapse: collapse;
+  background-color: #131722;
+  color: white;
+}
+
+.name-tbl-wrap > table thead th {
+  background-color: var(--main_01);
+  color: var(--gray_08);
+  padding: 10px;
+  font-family: ns-r;
+  font-weight: 400;
+}
+
+tbody td {
+  padding: 10px;
+  text-align: center;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #1c2431;
+}
+
+tbody tr:hover {
+  background-color: #2f3b4f;
+  cursor: pointer;
+  color: #00f285;
+}
+
+.name-png {
+  display: flex;
+  align-items: center;
+}
+
+.name-png * {
+  margin: 0 20px;
+}
+.name-png img {
+  width: 50px;
+  border-radius: 20px;
+}
+.name-stat-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* NameCompatibility */
+.name-compatibility-wrap {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  width: 90%;
+}
+.name-compatibility-input-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.name-compatibility-input-wrap span {
+  padding: 0 15px;
+}
+
+#search-name {
+  font-family: ns-r;
+  font-size: 16px;
+}
+
+.name-compatibility-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+form {
+  height: 45px;
+}
+
+.name-compatibility-result {
+  margin-top: 30px;
+  border-top: 1px dashed rgb(104, 104, 104);
+  padding-top: 20px;
+  text-align: center;
+}
+
+.name-compatibility-result img {
+  width: 80%;
+}
+
+.name-compatibility-result h3 {
+  text-align: center;
+}
+
+.main-wrap h3 {
+  text-align: center;
+}
+
+.main-wrap p {
+  color: rgb(182, 182, 182);
+}

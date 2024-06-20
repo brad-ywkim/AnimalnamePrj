@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="kr.co.animalname.model.dao.AnimalnameDao">
+
+	<select id="selectAnimalname" resultType="animalname"
+		parameterType="map">
+		SELECT name_no, name, name_count
+		FROM animalname_tbl
+		<where>
+			<if test="searchName != 'a_l_l'">
+				name LIKE CONCAT('%', #{searchName}, '%')
+			</if>
+		</where>
+		ORDER BY name_no
+		LIMIT #{pi.limit} OFFSET #{pi.offset}
+	</select>
+
+	<select id="selectTotalCount" resultType="int"
+		parameterType="map">
+		SELECT count(*)
+		FROM animalname_tbl
+		<where>
+			<if test="searchName != 'a_l_l'">
+				name LIKE CONCAT('%', #{searchName}, '%')
+			</if>
+		</where>
+	</select>
+
+	<select id="selectCompatibilityResult" resultType="animalname">
+		SELECT compatibility_result FROM compatibility_tbl
+		<where>
+			<if
+				test="compatibilityScore &gt;= 1 and compatibilityScore &lt;= 5">
+				compatibility_no = 1
+			</if>
+			<if
+				test="compatibilityScore &gt;= 6 and compatibilityScore &lt;= 10">
+				compatibility_no = 6
+			</if>
+			<if
+				test="compatibilityScore &gt;= 11 and compatibilityScore &lt;= 15">
+				compatibility_no = 11
+			</if>
+			<if
+				test="compatibilityScore &gt;= 16 and compatibilityScore &lt;= 20">
+				compatibility_no = 16
+			</if>
+			<if
+				test="compatibilityScore &gt;= 21 and compatibilityScore &lt;= 25">
+				compatibility_no = 21
+			</if>
+			<if
+				test="compatibilityScore &gt;= 26 and compatibilityScore &lt;= 30">
+				compatibility_no = 26
+			</if>
+			<if
+				test="compatibilityScore &gt;= 31 and compatibilityScore &lt;= 35">
+				compatibility_no = 31
+			</if>
+			<if
+				test="compatibilityScore &gt;= 36 and compatibilityScore &lt;= 40">
+				compatibility_no = 36
+			</if>
+			<if
+				test="compatibilityScore &gt;= 41 and compatibilityScore &lt;= 45">
+				compatibility_no = 41
+			</if>
+			<if
+				test="compatibilityScore &gt;= 46 and compatibilityScore &lt;= 50">
+				compatibility_no = 46
+			</if>
+			<if
+				test="compatibilityScore &gt;= 51 and compatibilityScore &lt;= 55">
+				compatibility_no = 51
+			</if>
+			<if
+				test="compatibilityScore &gt;= 56 and compatibilityScore &lt;= 60">
+				compatibility_no = 56
+			</if>
+			<if
+				test="compatibilityScore &gt;= 61 and compatibilityScore &lt;= 65">
+				compatibility_no = 61
+			</if>
+			<if
+				test="compatibilityScore &gt;= 66 and compatibilityScore &lt;= 70">
+				compatibility_no = 66
+			</if>
+			<if
+				test="compatibilityScore &gt;= 71 and compatibilityScore &lt;= 75">
+				compatibility_no = 71
+			</if>
+			<if
+				test="compatibilityScore &gt;= 76 and compatibilityScore &lt;= 80">
+				compatibility_no = 76
+			</if>
+			<if
+				test="compatibilityScore &gt;= 81 and compatibilityScore &lt;= 85">
+				compatibility_no = 81
+			</if>
+			<if
+				test="compatibilityScore &gt;= 86 and compatibilityScore &lt;= 90">
+				compatibility_no = 86
+			</if>
+			<if
+				test="compatibilityScore &gt;= 91 and compatibilityScore &lt;= 95">
+				compatibility_no = 91
+			</if>
+			<if
+				test="compatibilityScore &gt;= 96 and compatibilityScore &lt;= 99">
+				compatibility_no = 96
+			</if>
+			<if
+				test="compatibilityScore == 100">
+				compatibility_no = 100
+			</if>
+		</where>
+	</select>
+
+<insert id="insertSearchName">
+    INSERT INTO search_tbl (name1, name2, search_date) 
+    VALUES (#{name1}, #{name2}, NOW());
+</insert>
+
+
+</mapper>
