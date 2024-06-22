@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 		//네비게이션 사이즈  : pageNaviSize
 		//페이지 네비게이션 시작 번호 : pageNo
 public class PageInfo {
+    private static final long serialVersionUID = 1L;
+
 	private int start;
 	private int end;
 	private int pageNo; //페이지 네비게이션 시작번호

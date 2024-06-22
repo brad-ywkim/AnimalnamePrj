@@ -1,0 +1,12 @@
+.scroll-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+}
+
+.scroll-to-top .MuiFab-root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -1,12 +1,15 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import Paper from "@mui/material/Paper";
 import InputBase from "@mui/material/InputBase";
 import IconButton from "@mui/material/IconButton";
-import "../name/name.css";
 import Fingerprint from "@mui/icons-material/Fingerprint";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import Pagination from "../common/Pagination";
 import Swal from "sweetalert2";
+import Pagination from "../common/Pagination";
+import "../name/name.css";
+import { useNavigate } from "react-router-dom";
+import ScrollToTop from "../component/ScrollToTop.js";
+import Tooltip from "@mui/material/Tooltip";
 
 const NameStat = () => {
   const [nameData, setNameData] = useState([]);
@@ -15,72 +18,66 @@ const NameStat = () => {
   const [searchName, setSearchName] = useState("");
   const [clickCount, setClickCount] = useState(0);
   const [isDisabled, setIsDisabled] = useState(false);
+  const navigate = useNavigate();
 
   const backServer = process.env.REACT_APP_BACK_SERVER;
-  const images = [
-    "../image/dog1.webp",
-    "../image/dog2.webp",
-    "../image/dog3.webp",
-    "../image/dog4.webp",
-    "../image/dog5.webp",
-    "../image/dog6.webp",
-    "../image/dog7.webp",
-    "../image/dog8.webp",
-    "../image/dog9.webp",
-    "../image/dog10.webp",
-    "../image/dog11.webp",
-    "../image/dog12.webp",
-    "../image/dog13.webp",
-    "../image/dog14.webp",
-    "../image/dog15.webp",
-    "../image/dog16.webp",
-    "../image/dog17.webp",
-    "../image/dog18.webp",
-    "../image/dog19.webp",
-    "../image/dog20.webp",
-    "../image/dog21.webp",
-    "../image/dog22.webp",
-    "../image/dog23.webp",
-    "../image/dog24.webp",
-    "../image/dog25.png",
-    "../image/dog26.png",
-    "../image/dog27.png",
-    "../image/dog28.png",
-    "../image/dog29.png",
-  ];
+  const socketServer = backServer.replace("http://", "ws://");
 
-  // 랜덤 이미지를 선택하는 함수
-  function getRandomImage() {
-    return images[Math.floor(Math.random() * images.length)];
-  }
+  const [ws, setWs] = useState(null);
+  const [rankingData, setRankingData] = useState([]); // 빈 배열로 초기화
 
-  const fetchData = (searchName, reqPage) => {
-    const queryName = searchName.trim() === "" ? "a_l_l" : searchName;
-    axios
-      .get(backServer + "/animalname/" + reqPage + "/" + queryName)
-      .then((res) => {
-        const dataWithImages = res.data.data.nameList.map((item) => ({
-          ...item,
-          image: getRandomImage(),
-        }));
-        setNameData(dataWithImages);
-        setPageInfo(res.data.data.pi);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const res = await axios.get(backServer + "/animalname/realtimeRank");
+        setRankingData(res.data.data.rankingList);
+        console.log(res.data.data.rankingList);
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
+    fetchInitialData();
+
+    const socket = new WebSocket(socketServer + "/realtime");
+    socket.onopen = () => {
+      console.log("websocket connected");
+      socket.send("i'm client");
+    };
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("서버수신 : ", data);
+      setRankingData(data.rankingList);
+    };
+
+    socket.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    setWs(socket);
+    return () => {
+      console.log("페이지에서 나감");
+      socket.close();
+    };
+  }, [socketServer, backServer]);
+
+  // ---------------------------------
   useEffect(() => {
     fetchData(searchName, reqPage);
   }, [reqPage]);
 
   const handleChange = (event) => {
-    setSearchName(event.target.value);
+    if (event.target.value.length <= 6) {
+      setSearchName(event.target.value);
+    }
   };
 
+  // 키워드 검색
   const handleSearchClick = (event) => {
-    event.preventDefault(); // 기본 폼 제출 동작을 막음
+    event.preventDefault();
     if (clickCount >= 20) {
       Swal.fire({
         title: "서비스 이용 지연 안내",
@@ -88,6 +85,9 @@ const NameStat = () => {
         icon: "info",
         footer:
           '<a href="/name-compatibility">기다리는 동안 이름 궁합 테스트를 진행해보세요!</a>',
+        customClass: {
+          popup: "custom-swal-width-height",
+        },
       });
       setIsDisabled(true);
       setTimeout(() => {
@@ -96,25 +96,44 @@ const NameStat = () => {
       }, 30000);
     } else {
       setClickCount(clickCount + 1);
-      setReqPage(1); // 검색 버튼 클릭 시 페이지를 1로 초기화
+      setReqPage(1);
       fetchData(searchName, 1);
     }
   };
 
-  console.log("카운트:", clickCount);
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       handleSearchClick(event);
     }
   };
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [reqPage]);
 
+  const fetchData = (searchName, reqPage) => {
+    const queryName = searchName.trim() === "" ? "a_l_l" : searchName;
+    axios
+      .get(backServer + "/animalname/" + reqPage + "/" + queryName)
+      .then((res) => {
+        setNameData(res.data.data.nameList);
+        setPageInfo(res.data.data.pi);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 동물상세
+  const animalDetail = (nameNo) => {
+    navigate("/name-detail/" + nameNo);
+  };
+
   return (
     <>
       <div className="name-stat-title">
-        <p>멍냥이들의 이름 순위를 확인해보세요.</p>
+        <h2 className="sub-title">이름 순위</h2>
+        <p>한국의 동물이름 순위를 확인해보세요.</p>
       </div>
       <div className="name-stat-wrap">
         <Paper
@@ -124,17 +143,17 @@ const NameStat = () => {
             display: "flex",
             alignItems: "center",
           }}
-          onSubmit={handleSearchClick} // 폼 제출 막기
+          onSubmit={handleSearchClick}
           id="namestat-form"
         >
           <InputBase
             sx={{ ml: 1, flex: 1 }}
-            placeholder="멍냥이 이름을 검색해보세요. 🍀"
+            placeholder="이름을 검색해보세요."
             inputProps={{ "aria-label": "멍냥이 이름을 검색해보세요." }}
             id="search-name-place-holder"
             value={searchName}
             onChange={handleChange}
-            onKeyDown={handleKeyDown} // Enter 키 이벤트 핸들러 추가
+            onKeyDown={handleKeyDown}
           />
 
           <IconButton
@@ -142,30 +161,77 @@ const NameStat = () => {
             sx={{ p: "10px" }}
             aria-label="fingerprint"
             onClick={handleSearchClick}
+            disabled={isDisabled}
           >
             <Fingerprint />
           </IconButton>
         </Paper>
       </div>
-      <div></div>
+      <div className="realtime-rank">
+        <div className="realtime-title">
+          <Tooltip title="Add" arrow>
+            <span className="realtime-keyword">실시간 인기 검색어🔥</span>
+          </Tooltip>
+        </div>
+        <div className="realtime-keyword-wrap">
+          <div className="realtime-keyword-container">
+            {rankingData.map((item, index) => (
+              <span className="realtime-keyword" key={index}>
+                {index === 0
+                  ? "🥇"
+                  : index === 1
+                  ? "🥈"
+                  : index === 2
+                  ? "🥉"
+                  : index === 3
+                  ? "4️⃣"
+                  : "5️⃣"}
+                {item.keyword}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
       <div className="name-tbl-wrap">
         <table>
           <thead>
             <tr>
               <th>순위</th>
-              <th>이름</th>
-              <th>동물 수</th>
+              <th className="tbl-name">이름</th>
+              <th>합계</th>
             </tr>
           </thead>
           <tbody>
             {nameData.map((item) => (
               <tr key={"item" + item.nameNo}>
-                <td>{item.nameNo.toLocaleString()}</td>
-                <td className="name-png">
-                  <img src={item.image} alt="dog" />
+                <td className="nameRank">
+                  {item.nameNo === 1
+                    ? "🥇"
+                    : item.nameNo === 2
+                    ? "🥈"
+                    : item.nameNo === 3
+                    ? "🥉"
+                    : item.nameNo}
+                </td>
+                <td
+                  className={`name-png ${
+                    item.name.length == 6
+                      ? "name-six"
+                      : item.name.length == 7
+                      ? "name-seven"
+                      : item.name.length >= 8
+                      ? "name-eight"
+                      : ""
+                  }`}
+                  onClick={() => animalDetail(item.nameNo)}
+                >
+                  <img
+                    src={process.env.PUBLIC_URL + "/" + item.nameImage}
+                    alt="dog"
+                  />
                   {item.name}
                 </td>
-                <td>{item.nameCount.toLocaleString()}</td>
+                <td className="nameCount">{item.nameCount}</td>
               </tr>
             ))}
           </tbody>
@@ -178,6 +244,7 @@ const NameStat = () => {
           setReqPage={setReqPage}
         />
       </div>
+      <ScrollToTop /> {/* ScrollToTop 컴포넌트 추가 */}
     </>
   );
 };

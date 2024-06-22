@@ -10,3 +10,6 @@ npm install @mui/icons-material
 2024-06-02
 npm install apexcharts --save
 npm i react-web-share
+
+2024-06-21
+npm install react-countup

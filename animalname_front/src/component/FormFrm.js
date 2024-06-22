@@ -35,6 +35,45 @@ const Input = (props) => {
   );
 };
 
+const Input2 = (props) => {
+  const {
+    type,
+    data,
+    setData,
+    id,
+    blurEvent,
+    changeEvent,
+    keyPressEvent,
+    className,
+    disabled = false,
+    placeholder,
+  } = props;
+
+  const changeData = (e) => {
+    const value = e.target.value;
+    if (value.length < 6) {
+      setData(value);
+    }
+    if (changeEvent) {
+      changeEvent(e);
+    }
+  };
+
+  return (
+    <input
+      className={className}
+      id={id}
+      type={type}
+      value={data || ""} // null이나 undefined일 때 공백처리
+      onChange={changeData}
+      onBlur={blurEvent}
+      disabled={disabled}
+      placeholder={placeholder}
+      onKeyDown={keyPressEvent} // onKeyPress 이벤트 연결
+    />
+  );
+};
+
 const Check = (props) => {
   const { id, checked, onChange } = props;
 
@@ -74,7 +113,7 @@ const Button2 = (props) => {
   const disabled = props.disabled;
   return (
     <button
-      className="btn st2"
+      className="btn st2 "
       id={id}
       type="button"
       onClick={clickEvent}
@@ -156,4 +195,14 @@ const Select = (props) => {
   );
 };
 
-export { Input, Button1, Button2, Button3, Select, Check, Button4, Button5 }; //defalut는 없다. 다른 컴포넌트도 만들 것이기 때문이다.
+export {
+  Input,
+  Input2,
+  Button1,
+  Button2,
+  Button3,
+  Select,
+  Check,
+  Button4,
+  Button5,
+}; //defalut는 없다. 다른 컴포넌트도 만들 것이기 때문이다.
