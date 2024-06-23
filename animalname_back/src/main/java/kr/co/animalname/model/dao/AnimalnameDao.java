@@ -29,4 +29,5 @@ public interface AnimalnameDao {
 	Luck selectExistLuck(Luck luck);
 	Luck selectLuckResult();
 	int insertLuck(Luck newLuck);
+	Luck selectExistLuckResult(int luckNo);
 }

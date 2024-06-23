@@ -171,15 +171,24 @@ public class AnimalnameController {
 	}
 
 	@GetMapping(value = "/luck/{name1}/{name2}")
-	  public ResponseEntity<ResponseDTO> luck(@PathVariable String name1, @PathVariable String name2) {
-        try {
-            Luck luckResult = animalnameService.selectLuck(name1, name2);
-            ResponseDTO response = new ResponseDTO(200, HttpStatus.OK, "success", luckResult);
-            return new ResponseEntity<>(response, response.getHttpStatus());
-        } catch (RuntimeException e) {
-            ResponseDTO response = new ResponseDTO(500, HttpStatus.INTERNAL_SERVER_ERROR, "fail", null);
-            return new ResponseEntity<>(response, response.getHttpStatus());
-        }
-    }
+	public ResponseEntity<ResponseDTO> luck(@PathVariable String name1, @PathVariable String name2) {
+		System.out.println("여기는 컨트롤러  : " + name1 + " " + name2);
+		Luck luckResult = animalnameService.selectLuck(name1, name2);
+		if(luckResult != null) {
+			ResponseDTO response = new ResponseDTO(200, HttpStatus.OK, "success", luckResult);
+			return new ResponseEntity<>(response, response.getHttpStatus());
+		}else {
+			ResponseDTO response = new ResponseDTO(200, HttpStatus.OK, "fail", null);
+			return new ResponseEntity<>(response, response.getHttpStatus());
+		}
+	}
+
+	@GetMapping(value="/totalCompatibility")
+	public ResponseEntity<ResponseDTO> totalCompatibility(){
+		int result = animalnameService.totalCompatibilityCount();	
+		ResponseDTO response = new ResponseDTO(200, HttpStatus.OK, "success", result);
+		return new ResponseEntity<ResponseDTO>(response, response.getHttpStatus());
+	}
+	
 
 }

@@ -21,7 +21,9 @@ const NameStat = () => {
   const navigate = useNavigate();
 
   const backServer = process.env.REACT_APP_BACK_SERVER;
-  const socketServer = backServer.replace("http://", "ws://");
+  const socketServer = backServer
+    .replace("http://", "wss://")
+    .replace("https://", "wss://");
 
   const [ws, setWs] = useState(null);
   const [rankingData, setRankingData] = useState([]); // 빈 배열로 초기화
@@ -31,9 +33,8 @@ const NameStat = () => {
       try {
         const res = await axios.get(backServer + "/animalname/realtimeRank");
         setRankingData(res.data.data.rankingList);
-        console.log(res.data.data.rankingList);
       } catch (err) {
-        console.error(err);
+        // alert("현재 서비 점검 중 입니다. 잠시 후 다시 이용해 주세요.");
       }
     };
 
@@ -41,25 +42,23 @@ const NameStat = () => {
 
     const socket = new WebSocket(socketServer + "/realtime");
     socket.onopen = () => {
-      console.log("websocket connected");
       socket.send("i'm client");
     };
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("서버수신 : ", data);
+
       setRankingData(data.rankingList);
     };
 
-    socket.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
-    socket.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
+    //소켓 종료
+    socket.onclose = () => {};
+
+    //소켓 에러
+    socket.onerror = (error) => {};
 
     setWs(socket);
     return () => {
-      console.log("페이지에서 나감");
+      //페이지 아웃
       socket.close();
     };
   }, [socketServer, backServer]);
@@ -75,9 +74,25 @@ const NameStat = () => {
     }
   };
 
+  // 한글 유효성 검사 함수
+  const isCompleteHangul = (str) => {
+    const hangulPattern = /^[가-힣\s]*$/;
+    return hangulPattern.test(str);
+  };
+
   // 키워드 검색
   const handleSearchClick = (event) => {
     event.preventDefault();
+    if (!isCompleteHangul(searchName)) {
+      Swal.fire({
+        title: "입력 오류",
+        text: "완성된 한글만 입력해주세요.",
+        icon: "warning",
+        confirmButtonText: "확인",
+      });
+      return;
+    }
+
     if (clickCount >= 20) {
       Swal.fire({
         title: "서비스 이용 지연 안내",
@@ -85,6 +100,8 @@ const NameStat = () => {
         icon: "info",
         footer:
           '<a href="/name-compatibility">기다리는 동안 이름 궁합 테스트를 진행해보세요!</a>',
+        allowOutsideClick: false,
+        allowEnterKey: false,
         customClass: {
           popup: "custom-swal-width-height",
         },
@@ -119,9 +136,7 @@ const NameStat = () => {
         setNameData(res.data.data.nameList);
         setPageInfo(res.data.data.pi);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   // 동물상세
@@ -149,7 +164,7 @@ const NameStat = () => {
           <InputBase
             sx={{ ml: 1, flex: 1 }}
             placeholder="이름을 검색해보세요."
-            inputProps={{ "aria-label": "멍냥이 이름을 검색해보세요." }}
+            inputProps={{ "aria-label": "이름을 검색해보세요." }}
             id="search-name-place-holder"
             value={searchName}
             onChange={handleChange}

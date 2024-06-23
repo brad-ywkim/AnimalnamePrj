@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import "./default.css";
+import Swal from "sweetalert2";
 
 const Header = () => {
   const location = useLocation();
@@ -19,6 +20,13 @@ const Header = () => {
     if (location.pathname === path) {
       window.location.reload();
     }
+  };
+
+  const ready = () => {
+    Swal.fire({
+      icon: "info",
+      text: "멍냥이들을 위한 신규 콘텐츠 준비중 🐶",
+    });
   };
 
   return (

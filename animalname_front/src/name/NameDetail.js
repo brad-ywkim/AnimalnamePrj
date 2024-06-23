@@ -23,14 +23,15 @@ const NameDetail = () => {
   const [messages, setMessages] = useState([]);
   const [moveCount, setMoveCount] = useState(0);
   const KAKAOTALK_SHART = process.env.KAKAOTALK_SHART;
+
   useEffect(() => {
     // 로컬스토리지에서 moveCount와 timestamp 가져오기
     const storedMoveCount = parseInt(localStorage.getItem("moveCount")) || 0;
     const storedTimestamp =
       parseInt(localStorage.getItem("timestamp")) || Date.now();
 
-    // 3초 (3000 밀리초) 이후 초기화
-    if (Date.now() - storedTimestamp > 30000) {
+    // 5분 (300,000 밀리초) 이후 초기화
+    if (Date.now() - storedTimestamp > 300000) {
       setMoveCount(0);
       localStorage.setItem("moveCount", 0);
       localStorage.setItem("timestamp", Date.now());
@@ -38,17 +39,13 @@ const NameDetail = () => {
       setMoveCount(storedMoveCount);
     }
 
-    console.log("현재 moveCount:", moveCount);
-    console.log("현재 timestamp:", storedTimestamp);
-
     axios
       .get(backServer + "/animalname/animal-detail/" + nameNo)
       .then((res) => {
         setNameData(res.data.data);
-        console.log(res.data.data);
       })
       .catch((error) => {
-        console.error("Error fetching dog info:", error);
+        // console.error("Error fetching dog info:", error);
       });
   }, [backServer, nameNo]);
 
@@ -70,8 +67,8 @@ const NameDetail = () => {
     const storedTimestamp =
       parseInt(localStorage.getItem("timestamp")) || Date.now();
 
-    // 3초 (3000 밀리초) 이후 초기화
-    if (Date.now() - storedTimestamp > 30000) {
+    // 5분 (300,000 밀리초) 이후 초기화
+    if (Date.now() - storedTimestamp > 300000) {
       setMoveCount(0);
       localStorage.setItem("moveCount", 0);
       localStorage.setItem("timestamp", Date.now());
@@ -88,7 +85,7 @@ const NameDetail = () => {
     } else {
       Swal.fire({
         title: "순간이동 횟수 초과",
-        text: "순간이동은 20번까지 가능합니다. 30초 후 다시 시도해 주세요.",
+        text: "순간이동은 10번까지 가능합니다. 5분 후 다시 시도해 주세요.",
         icon: "info",
         confirmButtonText: "확인",
         customClass: {
@@ -96,42 +93,11 @@ const NameDetail = () => {
           title: "swal-title-custom",
           content: "swal-content-custom",
         },
-        width: "300px", // 원하는 너비로 수정
+        width: "300px",
       });
     }
   };
-  console.log("웹이미지 : " + window.location.origin);
-  const shareKakao = () => {
-    if (window.Kakao) {
-      const kakao = window.Kakao;
-      if (!kakao.isInitialized()) {
-        kakao.init(KAKAOTALK_SHART);
-      }
 
-      kakao.Link.sendDefault({
-        objectType: "feed",
-        content: {
-          title: "제목입니다",
-          description: "설명란입니다",
-          imageUrl: "/image/dog26.png", // 이미지 경로 설정
-
-          link: {
-            mobileWebUrl: "https://www.naver.com",
-            webUrl: "https://www.google.com",
-          },
-        },
-        buttons: [
-          {
-            title: "자세히 보러 가기",
-            link: {
-              mobileWebUrl: "https://www.naver.com",
-              webUrl: "https://www.google.com",
-            },
-          },
-        ],
-      });
-    }
-  };
   return (
     <>
       <div className="detail-btn-wrap">
@@ -252,7 +218,7 @@ const NameDetail = () => {
         image={nameData.nameImage}
         messageContent={messageContent}
         setMessageContent={setMessageContent}
-        setRefreshMessages={setRefreshMessages} // 상태 변경 함수를 ChatComponent에 전달
+        setRefreshMessages={setRefreshMessages}
         messages={messages}
       />
     </>
@@ -283,45 +249,79 @@ const ChatComponent = (props) => {
   }, [messages]);
 
   const sendMessage = () => {
+    // 로컬스토리지에서 messageCount와 timestamp 가져오기
+    const storedMessageCount =
+      parseInt(localStorage.getItem("messageCount")) || 0;
+    const storedTimestamp =
+      parseInt(localStorage.getItem("messageTimestamp")) || Date.now();
+
+    // 5분 (300,000 밀리초) 이후 초기화
+    if (Date.now() - storedTimestamp > 300000) {
+      localStorage.setItem("messageCount", 0);
+      localStorage.setItem("messageTimestamp", Date.now());
+    } else if (storedMessageCount >= 10) {
+      Swal.fire({
+        title: "메시지 횟수 초과",
+        text: "메시지는 10번까지 가능합니다. 5분 후 다시 시도해 주세요.",
+        icon: "info",
+        confirmButtonText: "확인",
+        customClass: {
+          popup: "swal-popup-custom",
+          title: "swal-title-custom",
+          content: "swal-content-custom",
+        },
+        width: "300px",
+      });
+      return;
+    }
+
     Swal.fire({
-      title: "메시지를 작성하시겠습니끼?",
+      title: "메시지를 작성하시겠습니까?",
+      icon: "info",
       text: "메시지는 관리자 승인 후 노출됩니다. 더불어, 대화의 매너를 꼭 지켜주세요! 😊 ",
       showDenyButton: true,
       confirmButtonText: "넹",
       denyButtonText: `아니용`,
+      allowOutsideClick: false,
+      allowEnterKey: false,
       customClass: {
         title: "swal2-title",
         popup: "swal2-popup",
       },
-      width: "300px", // Adjust the width as needed
+      width: "300px",
     }).then((result) => {
       if (result.isConfirmed) {
         const message = { nameNo, messageContent };
-        console.log("메시지값", message); // 메시지가 제대로 설정되었는지 확인
-        console.log("타입확인", typeof nameNo);
         axios
           .post(backServer + "/animalname/message", message)
           .then((res) => {
-            console.log(res, "성공");
-            setRefreshMessages(true); // 메시지 전송 후 데이터 리로드 트리거
-            setMessageContent(""); // 메시지 전송 후 입력란 초기화
+            setRefreshMessages(true);
+            setMessageContent("");
             scrollToBottom();
+
+            const newMessageCount = storedMessageCount + 1;
+            localStorage.setItem("messageCount", newMessageCount);
+            localStorage.setItem("messageTimestamp", Date.now());
           })
           .catch((error) => {
-            console.log(error, "실패");
+            // console.log(error, "실패");
           });
         Swal.fire({
           title: "🐶 ❣️",
           text: "메시지 고마워용",
           icon: "success",
-          width: "300px", // Adjust the width of the final message modal
+          width: "300px",
+          allowOutsideClick: false,
+          allowEnterKey: false,
         });
       } else {
         Swal.fire({
           title: "🐶 🔙",
           text: "나중에 만나용",
           icon: "error",
-          width: "300px", // Adjust the width of the final message modal
+          width: "300px",
+          allowOutsideClick: false,
+          allowEnterKey: false,
         });
       }
     });
@@ -377,7 +377,6 @@ const ChatComponent = (props) => {
             className={`send ${!messageContent.trim() ? "disabled" : ""}`}
             onClick={messageContent.trim() ? sendMessage : null}
           >
-            {" "}
             <svg
               className="send-icon"
               version="1.1"

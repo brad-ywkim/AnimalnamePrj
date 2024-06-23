@@ -59,7 +59,7 @@ public class AnimalnameService {
 	public Map<String, Object> selectAnimalname(int reqPage, String searchName) {
 		System.out.println("여기들ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ와?");
 
-		int numPerPage = 100; // 한 페이지당 게시물 수
+		int numPerPage = 40; // 한 페이지당 게시물 수
 		int pageNaviSize = 5;
 		int totalCount = animalnameDao.selectTotalCount(searchName);
 		PageInfo pi = pagination.getPageInfo(reqPage, numPerPage, pageNaviSize, totalCount);
@@ -201,15 +201,20 @@ public class AnimalnameService {
 	// 기록이 없다면, 새로 랜덤으로 운세 하나 가져와서 luck 저장
 	@Transactional
 	public Luck selectLuck(String name1, String name2) {
+		System.out.println("여기는 서비스  : "  + name1 + " " +  name2);
+
 		Luck luck = new Luck();
 		luck.setName1(name1);
 		luck.setName2(name2);
 
 		// 동일한 이름들로 운세받은 기록이 있는 지 확인
 		Luck existingLuck = animalnameDao.selectExistLuck(luck);
+		System.out.println("실행전 : " + existingLuck);
 
 		if (existingLuck != null) {
-			return existingLuck; // 기존 운세 정보를 반환합니다.
+			Luck existingLuckResult = animalnameDao.selectExistLuckResult(existingLuck.getLuckNo());
+			System.out.println("여기는 기존운세조회결과 " + existingLuckResult );
+			return existingLuckResult; // 기존 운세 정보를 반환합니다.
 		}
 
 		// 기록이 없다면, 새로 랜덤으로 운세 하나 가져와서 luck 저장
@@ -226,4 +231,11 @@ public class AnimalnameService {
 		return newLuck;
 
 	}
+
+	public int totalCompatibilityCount() {
+		int result = animalnameDao.totalCompatibilityCount();
+		return result;
+	}
+
+
 }

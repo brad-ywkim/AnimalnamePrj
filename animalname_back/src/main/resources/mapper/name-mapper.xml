@@ -3,239 +3,173 @@
 
 <mapper namespace="kr.co.animalname.model.dao.AnimalnameDao">
 
-	<select id="selectRealTimeRanking" resultType="animalRank">
-		SELECT KEYWORD, COUNT(*) AS SEARCHCOUNT
-		FROM SEARCH_TBL
-		WHERE YEAR(SEARCH_DATE) = YEAR(CURDATE())AND MONTH(SEARCH_DATE) = MONTH(CURDATE())
-		GROUP BY KEYWORD
-		ORDER BY SEARCHCOUNT DESC, KEYWORD ASC
-		LIMIT 5;
-	</select>
+    <select id="selectRealTimeRanking" resultType="animalRank">
+        SELECT KEYWORD, COUNT(*) AS SEARCHCOUNT
+        FROM search_tbl
+        WHERE YEAR(SEARCH_DATE) = YEAR(CURDATE()) AND MONTH(SEARCH_DATE) = MONTH(CURDATE())
+        GROUP BY KEYWORD
+        ORDER BY SEARCHCOUNT DESC, KEYWORD ASC
+        LIMIT 5;
+    </select>
 
+    <select id="selectAnimalname" resultType="animalname" parameterType="map">
+        SELECT *
+        FROM animalname_tbl
+        <where>
+            <if test="searchName != 'a_l_l'">
+                name LIKE CONCAT('%', #{searchName}, '%')
+            </if>
+        </where>
+        ORDER BY name_no
+        LIMIT #{pi.limit} OFFSET #{pi.offset}
+    </select>
 
-	<select id="selectAnimalname" resultType="animalname"
-		parameterType="map">
-		SELECT *
-		FROM animalname_tbl
-		<where>
-			<if test="searchName != 'a_l_l'">
-				name LIKE CONCAT('%', #{searchName}, '%')
-			</if>
-		</where>
-		ORDER BY name_no
-		LIMIT #{pi.limit} OFFSET #{pi.offset}
-	</select>
+    <select id="selectAnimalDetail" resultType="animalName">
+        SELECT * FROM animalname_tbl WHERE name_no = #{nameNo}
+    </select>
 
-	<select id="selectAnimalDetail" resultType="animalName">
-		select * from
-		animalname_tbl where name_no = #{nameNo}
-	</select>
+    <select id="selectTotalSearchNameCount" resultType="int">
+        SELECT COUNT(*) AS search_count
+        FROM search_tbl
+        WHERE KEYWORD LIKE #{name}
+    </select>
 
-	<select id="selectTotalSearchNameCount" resultType="int">
-		SELECT
-		COUNT(*)
-		AS search_count
-		FROM
-		SEARCH_TBL
-		WHERE
-		KEYWORD LIKE #{name}
-	</select>
+    <select id="selectTotalSearchCompatibilityCount" resultType="int">
+        SELECT COUNT(*)
+        FROM compatibility_search_tbl
+        WHERE NAME1 LIKE CONCAT('%', #{name}, '%') OR NAME2 LIKE CONCAT('%', #{name}, '%')
+    </select>
 
-	<select id="selectTotalSearchCompatibilityCount"
-		resultType="int">
-		SELECT
-		COUNT(*)
-		FROM COMPATIBILITY_SEARCH_TBL
-		WHERE NAME1 LIKE
-		CONCAT('%',
-		#{name}, '%')
-		OR NAME2 LIKE CONCAT('%', #{name}, '%')
-	</select>
+    <select id="selectMessage" resultType="message">
+        SELECT * FROM message_tbl
+        WHERE name_no = #{nameNo} AND status = 2
+        ORDER BY message_date ASC
+    </select>
 
-	<select id="selectMessage" resultType="message">
-		select * from message_tbl
-		where name_no = #{nameNo} and status = 2 ORDER BY
-		message_date
-		ASC
-	</select>
+    <insert id="insertMessage">
+        INSERT INTO message_tbl (name_no, message_content, message_date, status)
+        VALUES (#{nameNo}, #{messageContent}, NOW(), 1)
+    </insert>
 
-	<insert id="insertMessage">
-		INSERT INTO message_tbl (name_no, message_content,
-		message_date, status)
-		VALUES (#{nameNo}, #{messageContent}, NOW(), 1)
-	</insert>
+    <select id="totalNameCount" resultType="int">
+        SELECT COUNT(*) FROM search_tbl
+    </select>
 
-	<select id="totalNameCount" resultType="int">
-		select count(*) from search_tbl
-	</select>
+    <select id="totalCompatibilityCount" resultType="int">
+        SELECT COUNT(*) FROM compatibility_search_tbl
+    </select>
 
-	<select id="totalCompatibilityCount" resultType="int">
-		select count(*) from compatibility_search_tbl
-	</select>
+    <insert id="insertKeyword">
+        INSERT INTO search_tbl (keyword, search_date)
+        VALUES (#{searchName}, NOW())
+    </insert>
+    
+    <select id="selectCompatibility" resultType="compatibility">
+        SELECT * FROM compatibility_tbl WHERE name1 = #{name1} AND name2 = #{name2}
+    </select>
+    
+    <insert id="insertCompatibilityName">
+        INSERT INTO compatibility_search_tbl (compatibility_no, name1, name2, search_date)
+        VALUES (#{compatibilityNo}, #{name1}, #{name2}, NOW())
+    </insert>
+    
+    <select id="selectTotalCount" resultType="int" parameterType="map">
+        SELECT COUNT(*)
+        FROM animalname_tbl
+        <where>
+            <if test="searchName != 'a_l_l'">
+                name LIKE CONCAT('%', #{searchName}, '%')
+            </if>
+        </where>
+    </select>
 
-	<insert id="insertKeyword">
-		INSERT INTO search_tbl (keyword, search_date)
-		VALUES
-		(#{searchName}, NOW())
-	</insert>
-	
-	<select id="selectCompatibility" resultType="compatibility">
-		select * from compatibility_tbl where name1 = #{name1} and name2 = #{name2}
-	</select>
-	
-	
-	<insert id="insertCompatibilityName">
-		INSERT INTO compatibility_search_tbl (compatibility_no, name1, name2,
-		search_date)
-		VALUES (#{compatibilityNo}, #{name1}, #{name2}, NOW())
-	</insert>
-	
-	
-	
-	
-	
+    <select id="selectCompatibilityResult" resultType="compatibility">
+        SELECT * FROM compatibility_tbl
+        <where>
+            <if test="compatibilityScore &gt;= 1 and compatibilityScore &lt;= 5">
+                compatibility_no = 1
+            </if>
+            <if test="compatibilityScore &gt;= 6 and compatibilityScore &lt;= 10">
+                compatibility_no = 6
+            </if>
+            <if test="compatibilityScore &gt;= 11 and compatibilityScore &lt;= 15">
+                compatibility_no = 11
+            </if>
+            <if test="compatibilityScore &gt;= 16 and compatibilityScore &lt;= 20">
+                compatibility_no = 16
+            </if>
+            <if test="compatibilityScore &gt;= 21 and compatibilityScore &lt;= 25">
+                compatibility_no = 21
+            </if>
+            <if test="compatibilityScore &gt;= 26 and compatibilityScore &lt;= 30">
+                compatibility_no = 26
+            </if>
+            <if test="compatibilityScore &gt;= 31 and compatibilityScore &lt;= 35">
+                compatibility_no = 31
+            </if>
+            <if test="compatibilityScore &gt;= 36 and compatibilityScore &lt;= 40">
+                compatibility_no = 36
+            </if>
+            <if test="compatibilityScore &gt;= 41 and compatibilityScore &lt;= 45">
+                compatibility_no = 41
+            </if>
+            <if test="compatibilityScore &gt;= 46 and compatibilityScore &lt;= 50">
+                compatibility_no = 46
+            </if>
+            <if test="compatibilityScore &gt;= 51 and compatibilityScore &lt;= 55">
+                compatibility_no = 51
+            </if>
+            <if test="compatibilityScore &gt;= 56 and compatibilityScore &lt;= 60">
+                compatibility_no = 56
+            </if>
+            <if test="compatibilityScore &gt;= 61 and compatibilityScore &lt;= 65">
+                compatibility_no = 61
+            </if>
+            <if test="compatibilityScore &gt;= 66 and compatibilityScore &lt;= 70">
+                compatibility_no = 66
+            </if>
+            <if test="compatibilityScore &gt;= 71 and compatibilityScore &lt;= 75">
+                compatibility_no = 71
+            </if>
+            <if test="compatibilityScore &gt;= 76 and compatibilityScore &lt;= 80">
+                compatibility_no = 76
+            </if>
+            <if test="compatibilityScore &gt;= 81 and compatibilityScore &lt;= 85">
+                compatibility_no = 81
+            </if>
+            <if test="compatibilityScore &gt;= 86 and compatibilityScore &lt;= 90">
+                compatibility_no = 86
+            </if>
+            <if test="compatibilityScore &gt;= 91 and compatibilityScore &lt;= 95">
+                compatibility_no = 91
+            </if>
+            <if test="compatibilityScore &gt;= 96 and compatibilityScore &lt;= 99">
+                compatibility_no = 96
+            </if>
+            <if test="compatibilityScore == 100">
+                compatibility_no = 100
+            </if>
+        </where>
+    </select>
 
-	
-	
-	
-	
-	
-	
-	
+    <select id="selectExistLuck" resultType="luck">
+        SELECT * FROM luck_search_tbl
+        WHERE name1 = #{name1} AND name2 = #{name2} AND DATE(search_date) = DATE(CURDATE())
+    </select>
 
+    <select id="selectExistLuckResult" resultType="luck">
+        SELECT * FROM luck_tbl WHERE luck_no = #{luckNo}
+    </select>
 
+    <select id="selectLuckResult" resultType="luck">
+        SELECT * FROM luck_tbl
+        ORDER BY RAND()
+        LIMIT 1
+    </select>
 
-
-
-
-
-
-
-
-
-
-
-
-
-	<select id="selectTotalCount" resultType="int"
-		parameterType="map">
-		SELECT count(*)
-		FROM animalname_tbl
-		<where>
-			<if test="searchName != 'a_l_l'">
-				name LIKE CONCAT('%', #{searchName}, '%')
-			</if>
-		</where>
-	</select>
-
-
-	<select id="selectCompatibilityResult" resultType="compatibility">
-		SELECT * FROM compatibility_tbl
-		<where>
-			<if
-				test="compatibilityScore &gt;= 1 and compatibilityScore &lt;= 5">
-				compatibility_no = 1
-			</if>
-			<if
-				test="compatibilityScore &gt;= 6 and compatibilityScore &lt;= 10">
-				compatibility_no = 6
-			</if>
-			<if
-				test="compatibilityScore &gt;= 11 and compatibilityScore &lt;= 15">
-				compatibility_no = 11
-			</if>
-			<if
-				test="compatibilityScore &gt;= 16 and compatibilityScore &lt;= 20">
-				compatibility_no = 16
-			</if>
-			<if
-				test="compatibilityScore &gt;= 21 and compatibilityScore &lt;= 25">
-				compatibility_no = 21
-			</if>
-			<if
-				test="compatibilityScore &gt;= 26 and compatibilityScore &lt;= 30">
-				compatibility_no = 26
-			</if>
-			<if
-				test="compatibilityScore &gt;= 31 and compatibilityScore &lt;= 35">
-				compatibility_no = 31
-			</if>
-			<if
-				test="compatibilityScore &gt;= 36 and compatibilityScore &lt;= 40">
-				compatibility_no = 36
-			</if>
-			<if
-				test="compatibilityScore &gt;= 41 and compatibilityScore &lt;= 45">
-				compatibility_no = 41
-			</if>
-			<if
-				test="compatibilityScore &gt;= 46 and compatibilityScore &lt;= 50">
-				compatibility_no = 46
-			</if>
-			<if
-				test="compatibilityScore &gt;= 51 and compatibilityScore &lt;= 55">
-				compatibility_no = 51
-			</if>
-			<if
-				test="compatibilityScore &gt;= 56 and compatibilityScore &lt;= 60">
-				compatibility_no = 56
-			</if>
-			<if
-				test="compatibilityScore &gt;= 61 and compatibilityScore &lt;= 65">
-				compatibility_no = 61
-			</if>
-			<if
-				test="compatibilityScore &gt;= 66 and compatibilityScore &lt;= 70">
-				compatibility_no = 66
-			</if>
-			<if
-				test="compatibilityScore &gt;= 71 and compatibilityScore &lt;= 75">
-				compatibility_no = 71
-			</if>
-			<if
-				test="compatibilityScore &gt;= 76 and compatibilityScore &lt;= 80">
-				compatibility_no = 76
-			</if>
-			<if
-				test="compatibilityScore &gt;= 81 and compatibilityScore &lt;= 85">
-				compatibility_no = 81
-			</if>
-			<if
-				test="compatibilityScore &gt;= 86 and compatibilityScore &lt;= 90">
-				compatibility_no = 86
-			</if>
-			<if
-				test="compatibilityScore &gt;= 91 and compatibilityScore &lt;= 95">
-				compatibility_no = 91
-			</if>
-			<if
-				test="compatibilityScore &gt;= 96 and compatibilityScore &lt;= 99">
-				compatibility_no = 96
-			</if>
-			<if test="compatibilityScore == 100">
-				compatibility_no = 100
-			</if>
-		</where>
-	</select>
-
-
-	<select id="selectExistLuck" resultType="luck">
-		select * from luck_search_tbl
-		where name1 = #{name1} and name2=#{name2} and
-		date(search_date) = date(curdate())
-	</select>
-
-
-	<select id="selectLuckResult" resultType="luck">
-		select * from luck_tbl
-		ORDER BY RAND()
-		LIMIT 1
-	</select>
-
-
-	<insert id="insertLuck">
-		insert into luck_search_tbl (luck_no, name1, name2, search_date)
-		values(#{luckNo}, #{name1}, #{name2}, now())
-	</insert>
+    <insert id="insertLuck">
+        INSERT INTO luck_search_tbl (luck_no, name1, name2, search_date)
+        VALUES (#{luckNo}, #{name1}, #{name2}, NOW())
+    </insert>
 
 </mapper>

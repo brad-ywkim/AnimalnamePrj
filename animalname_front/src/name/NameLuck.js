@@ -7,6 +7,9 @@ import { Button1, Button2, Button3 } from "../component/FormFrm";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { RWebShare } from "react-web-share";
+import ShareKakao from "../component/ShareKakao";
+import LoadBear from "../component/LoadBear";
+import Luck from "../component/Luck";
 
 const NameLuck = () => {
   const backServer = process.env.REACT_APP_BACK_SERVER;
@@ -18,6 +21,7 @@ const NameLuck = () => {
   const [name1, setName1] = useState("");
   const [name2, setName2] = useState("");
   const [luckResult, setLuckResult] = useState({});
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
 
   const [currentDateTime, setCurrentDateTime] = useState({
     time: "",
@@ -28,78 +32,56 @@ const NameLuck = () => {
 
   const handleChange1 = (event) => {
     const input = event.target.value;
-    const hangulCheck = /[^가-힣ㄱ-ㅎㅏ-ㅣ]/g;
-    if (hangulCheck.test(input)) {
-      Swal.fire({
-        title: "입력 오류",
-        text: "한글만 입력 가능합니다.",
-        icon: "error",
-        customClass: {
-          title: "swal2-title",
-          popup: "swal2-popup",
-        },
-        width: "200px", // Adjust the width as needed
-      });
-    } else {
-      setName1(input);
-      setLuckResult({}); // 결과 초기화
-    }
+    setName1(input);
+    setLuckResult({}); // 결과 초기화
   };
-  const images = [
-    "luck1.webp",
-    "luck2.webp",
-    "luck3.webp",
-    "luck4.webp",
-    "luck5.webp",
-    "luck6.webp",
-    "luck7.webp",
-    "luck8.webp",
-    "luck9.webp",
-  ];
-  useEffect(() => {
-    // 컴포넌트가 마운트 될 때 랜덤 이미지 인덱스 설정
-    setImgIndex(Math.floor(Math.random() * images.length));
-  }, []);
+
   const handleChange2 = (event) => {
     const input = event.target.value;
-    const hangulCheck = /[^가-힣ㄱ-ㅎㅏ-ㅣ]/g;
-    if (hangulCheck.test(input)) {
-      Swal.fire({
-        title: "입력 오류",
-        text: "한글만 입력 가능합니다.",
-        icon: "error",
-        customClass: {
-          title: "swal2-title",
-          popup: "swal2-popup",
-        },
-        width: "200px", // Adjust the width as needed
-      });
-    } else {
-      setName2(input);
-      setLuckResult({}); // 결과 초기화
-    }
+    setName2(input);
+    setLuckResult({}); // 결과 초기화
   };
 
   const compa = () => {
-    if (name1 === "" || name2 === "") {
+    const hangulCheck = /[^가-힣]/g;
+    if (
+      name1 === "" ||
+      name2 === "" ||
+      hangulCheck.test(name1) ||
+      hangulCheck.test(name2)
+    ) {
+      let errorMessage = "";
+      if (name1 === "" || name2 === "") {
+        errorMessage = "이름을 모두 입력하세요.";
+      } else if (hangulCheck.test(name1) || hangulCheck.test(name2)) {
+        errorMessage = "이름을 정확히 입력하세요.";
+      }
       Swal.fire({
-        title: "이름 입력 필수",
-        text: "이름을 모두 입력해주세요.",
+        title: "입력 오류",
+        text: errorMessage,
         icon: "error",
         customClass: {
           title: "swal2-title",
           popup: "swal2-popup",
         },
+        allowOutsideClick: false, // 추가된 옵션
+        allowEnterKey: false,
         width: "200px", // Adjust the width as needed
       });
+    } else {
+      setIsLoading(true); // 로딩 상태 시작
+      axios
+        .get(backServer + "/animalname/luck/" + name1 + "/" + name2)
+        .then((res) => {
+          setTimeout(() => {
+            setLuckResult(res.data.data);
+            setIsLoading(false); // 로딩 상태 종료
+          }, 4000); // 4초 대기
+        })
+        .catch((res) => {
+          setIsLoading(false); // 에러 발생 시에도 로딩 상태 종료
+        });
     }
-    axios
-      .get(backServer + "/animalname/luck/" + name1 + "/" + name2)
-      .then((res) => {
-        console.log(res.data);
-        setLuckResult(res.data.data);
-      })
-      .catch((res) => {});
   };
 
   // 시간 및 날짜 표시
@@ -137,6 +119,23 @@ const NameLuck = () => {
     // 컴포넌트 언마운트 시 인터벌 정리
     return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    // 컴포넌트가 마운트 될 때 랜덤 이미지 인덱스 설정
+    setImgIndex(Math.floor(Math.random() * images.length));
+  }, []);
+
+  const images = [
+    "luck1.webp",
+    "luck2.webp",
+    "luck3.webp",
+    "luck4.webp",
+    "luck5.webp",
+    "luck6.webp",
+    "luck7.webp",
+    "luck8.webp",
+    "luck9.webp",
+  ];
 
   return (
     <div className="name-compatibility-wrap">
@@ -197,53 +196,62 @@ const NameLuck = () => {
         />
       </div>
       <div className="name-compatibility-result">
-        {" "}
-        {Object.keys(luckResult).length === 0 ? (
-          ""
+        {isLoading ? ( // 로딩 상태 표시
+          <>
+            <p id="luck-ready">
+              운세를 찾고 있어요. <br /> 잠시만 기다려주세요.🐶
+            </p>
+
+            <LoadBear />
+          </>
         ) : (
           <>
-            <h3 className="luck-title">
-              {name1} <span style={{ fontWeight: 400 }}>님과</span> {name2}
-              {""} <span style={{ fontWeight: 400 }}>님의 운세</span> 🍀
-            </h3>
+            {Object.keys(luckResult).length === 0 ? (
+              <>
+                <p id="compatibility-ready">
+                  오늘은 또 무슨 일이 기다리고 있을까?
+                </p>
+                <br />
+                <br />
+                <Luck />
+              </>
+            ) : (
+              <>
+                <h3 className="luck-title">
+                  {name1} <span style={{ fontWeight: 400 }}>님과</span> {name2}
+                  {""} <span style={{ fontWeight: 400 }}>님의 운세</span> 🍀
+                </h3>
 
-            <img
-              className="luck-img"
-              src={`../image/${images[imgIndex]}`}
-              alt="todayluck"
-            />
+                <img
+                  className="luck-img"
+                  src={`${process.env.PUBLIC_URL}/image/${images[imgIndex]}`}
+                  alt="todayluck"
+                />
 
-            <p
-              style={{
-                fontSize: "16px",
-                color: "#0ce466",
-                marginTop: "10px",
-              }}
-            >
-              {luckResult.luckTitle}
-            </p>
-            <p className="test-result">{luckResult.luck} </p>
+                <p
+                  style={{
+                    fontSize: "16px",
+                    color: "#0ce466",
+                    marginTop: "10px",
+                  }}
+                >
+                  {luckResult.luckTitle}
+                </p>
+                <p className="test-result">{luckResult.luck} </p>
 
-            <br />
-            <br />
-            <div>
-              <RWebShare
-                data={{
-                  text:
-                    { name1 } +
-                    "님과 " +
-                    { name2 } +
-                    "님의 운세는 " +
-                    `${luckResult.luck}` +
-                    "점입니다.",
-                  url: "https://www.petname.site",
-                  title: "한국 동물이름 순위",
-                }}
-                onClick={() => console.log("shared successfully!")}
-              >
-                <button className="btn st2">공유하기 🔗</button>
-              </RWebShare>
-            </div>
+                <br />
+                <br />
+                <div>
+                  <ShareKakao
+                    title="오늘의 운세"
+                    description={luckResult.luckTitle}
+                    imageUrl={`${process.env.PUBLIC_URL}/image/${images[imgIndex]}`}
+                    link="https://www.petname.site"
+                    buttonText="멍냥이 보러 가기"
+                  />
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
