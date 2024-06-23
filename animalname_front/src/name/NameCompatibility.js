@@ -318,7 +318,7 @@ const NameCompatibility = () => {
                 <br />
                 <div className="share-btn">
                   <ShareKakao
-                    title={`${name1}와 ${name2}의 궁합 결과`}
+                    title={`${name1}님과 ${name2}님의 궁합 결과`}
                     description={`${compatibilityResult.compatibilityResult}`}
                     imageUrl={absoluteImagePath(img)}
                     link="https://www.petname.site"
