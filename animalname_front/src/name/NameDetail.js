@@ -30,8 +30,8 @@ const NameDetail = () => {
     const storedTimestamp =
       parseInt(localStorage.getItem("timestamp")) || Date.now();
 
-    // 5분 (300,000 밀리초) 이후 초기화
-    if (Date.now() - storedTimestamp > 300000) {
+    // 30초 후 초기화
+    if (Date.now() - storedTimestamp > 30000) {
       setMoveCount(0);
       localStorage.setItem("moveCount", 0);
       localStorage.setItem("timestamp", Date.now());
@@ -67,8 +67,8 @@ const NameDetail = () => {
     const storedTimestamp =
       parseInt(localStorage.getItem("timestamp")) || Date.now();
 
-    // 5분 (300,000 밀리초) 이후 초기화
-    if (Date.now() - storedTimestamp > 300000) {
+    // 30초 후 초기화
+    if (Date.now() - storedTimestamp > 30000) {
       setMoveCount(0);
       localStorage.setItem("moveCount", 0);
       localStorage.setItem("timestamp", Date.now());
@@ -85,7 +85,7 @@ const NameDetail = () => {
     } else {
       Swal.fire({
         title: "순간이동 횟수 초과",
-        text: "순간이동은 10번까지 가능합니다. 5분 후 다시 시도해 주세요.",
+        text: "순간이동은 10번까지 가능합니다. 30초 후 다시 시도해 주세요.",
         icon: "info",
         confirmButtonText: "확인",
         customClass: {
@@ -248,21 +248,45 @@ const ChatComponent = (props) => {
     scrollToBottom();
   }, [messages]);
 
+  // .env 파일에서 금지 단어를 불러와서 배열로 변환
+  const badWords = process.env.REACT_APP_BAD_WORDS.split(",");
+
   const sendMessage = () => {
+    // 비속어 체크
+    const containsBadWord = badWords.some((word) =>
+      messageContent.includes(word.trim())
+    );
+
+    if (containsBadWord) {
+      Swal.fire({
+        title: "경고",
+        text: "금지 단어를 입력하셨습니다.",
+        icon: "error",
+        confirmButtonText: "확인",
+        customClass: {
+          popup: "swal-popup-custom",
+          title: "swal-title-custom",
+          content: "swal-content-custom",
+        },
+        width: "300px",
+      });
+      return;
+    }
+
     // 로컬스토리지에서 messageCount와 timestamp 가져오기
     const storedMessageCount =
       parseInt(localStorage.getItem("messageCount")) || 0;
     const storedTimestamp =
       parseInt(localStorage.getItem("messageTimestamp")) || Date.now();
 
-    // 5분 (300,000 밀리초) 이후 초기화
-    if (Date.now() - storedTimestamp > 300000) {
+    // 30초 후 초기화
+    if (Date.now() - storedTimestamp > 30000) {
       localStorage.setItem("messageCount", 0);
       localStorage.setItem("messageTimestamp", Date.now());
     } else if (storedMessageCount >= 10) {
       Swal.fire({
         title: "메시지 횟수 초과",
-        text: "메시지는 10번까지 가능합니다. 5분 후 다시 시도해 주세요.",
+        text: "메시지는 10번까지 가능합니다. 30초 후 다시 시도해 주세요.",
         icon: "info",
         confirmButtonText: "확인",
         customClass: {
@@ -278,15 +302,16 @@ const ChatComponent = (props) => {
     Swal.fire({
       title: "메시지를 작성하시겠습니까?",
       icon: "info",
-      text: "메시지는 관리자 승인 후 노출됩니다. 더불어, 대화의 매너를 꼭 지켜주세요! 😊 ",
+      text: "대화의 매너를 꼭 지켜주세요! 😊 ",
       showDenyButton: true,
       confirmButtonText: "넹",
       denyButtonText: `아니용`,
       allowOutsideClick: false,
-      allowEnterKey: false,
-      customClass: {
-        title: "swal2-title",
-        popup: "swal2-popup",
+      allowEnterKey: true, // Enter 키를 허용
+      preConfirm: () => {
+        return new Promise((resolve) => {
+          resolve(true);
+        });
       },
       width: "300px",
     }).then((result) => {
@@ -332,6 +357,13 @@ const ChatComponent = (props) => {
     setMessageContent(value);
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); // 기본 동작을 막아야 합니다.
+      sendMessage();
+    }
+  };
+
   return (
     <div className="container">
       <div>
@@ -372,6 +404,7 @@ const ChatComponent = (props) => {
             data={messageContent}
             setData={setMessageContent}
             changeEvent={handleChange}
+            onKeyDown={handleKeyDown} // Enter 키를 눌렀을 때 메시지를 보내기 위해 추가
           />
           <div
             className={`send ${!messageContent.trim() ? "disabled" : ""}`}

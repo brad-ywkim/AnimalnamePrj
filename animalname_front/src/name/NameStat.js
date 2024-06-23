@@ -63,7 +63,23 @@ const NameStat = () => {
     };
   }, [socketServer, backServer]);
 
-  // ---------------------------------
+  // 페이지가 처음 로드될 때 로컬스토리지에서 검색 카운트와 타임스탬프를 가져옴
+  useEffect(() => {
+    const storedSearchCount =
+      parseInt(localStorage.getItem("searchCount")) || 0;
+    const storedTimestamp =
+      parseInt(localStorage.getItem("searchTimestamp")) || Date.now();
+
+    // 30초 후 초기화
+    if (Date.now() - storedTimestamp > 30000) {
+      localStorage.setItem("searchCount", 0);
+      localStorage.setItem("searchTimestamp", Date.now());
+      setClickCount(0);
+    } else {
+      setClickCount(storedSearchCount);
+    }
+  }, []);
+
   useEffect(() => {
     fetchData(searchName, reqPage);
   }, [reqPage]);
@@ -80,9 +96,46 @@ const NameStat = () => {
     return hangulPattern.test(str);
   };
 
+  // 비속어 리스트를 .env 파일에서 불러오기
+  const badWords = process.env.REACT_APP_BAD_WORDS.split(",");
+
+  // 검색 횟수 및 시간 관리
+  const manageSearchCount = () => {
+    const storedSearchCount =
+      parseInt(localStorage.getItem("searchCount")) || 0;
+    const storedTimestamp =
+      parseInt(localStorage.getItem("searchTimestamp")) || Date.now();
+
+    // 30초 후 초기화
+    if (Date.now() - storedTimestamp > 30000) {
+      localStorage.setItem("searchCount", 0);
+      localStorage.setItem("searchTimestamp", Date.now());
+      setClickCount(0);
+      return 0;
+    } else {
+      return storedSearchCount;
+    }
+  };
+
   // 키워드 검색
   const handleSearchClick = (event) => {
     event.preventDefault();
+
+    // 비속어 체크
+    const containsBadWord = badWords.some((word) =>
+      searchName.includes(word.trim())
+    );
+
+    if (containsBadWord) {
+      Swal.fire({
+        title: "경고",
+        text: "금지 단어를 입력하셨습니다.",
+        icon: "error",
+        confirmButtonText: "확인",
+      });
+      return;
+    }
+
     if (!isCompleteHangul(searchName)) {
       Swal.fire({
         title: "입력 오류",
@@ -93,10 +146,12 @@ const NameStat = () => {
       return;
     }
 
-    if (clickCount >= 20) {
+    const currentSearchCount = manageSearchCount();
+
+    if (currentSearchCount >= 20) {
       Swal.fire({
         title: "서비스 이용 지연 안내",
-        text: "서비스 이용 감사드립니다. 현재 많은 이용 요청으로 잠시 지연되고 있습니다. 30초 후 다시 이용해주세요.",
+        text: "검색은 30초 당 20회로 제한됩니다. 30초 후 다시 이용해주세요.",
         icon: "info",
         footer:
           '<a href="/name-compatibility">기다리는 동안 이름 궁합 테스트를 진행해보세요!</a>',
@@ -112,7 +167,10 @@ const NameStat = () => {
         setClickCount(0);
       }, 30000);
     } else {
-      setClickCount(clickCount + 1);
+      const newSearchCount = currentSearchCount + 1;
+      setClickCount(newSearchCount);
+      localStorage.setItem("searchCount", newSearchCount);
+      localStorage.setItem("searchTimestamp", Date.now());
       setReqPage(1);
       fetchData(searchName, 1);
     }

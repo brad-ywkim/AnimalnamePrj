@@ -76,7 +76,7 @@ const NameLuck = () => {
           setTimeout(() => {
             setLuckResult(res.data.data);
             setIsLoading(false); // 로딩 상태 종료
-          }, 4000); // 4초 대기
+          }, 3000); // 3초 대기
         })
         .catch((res) => {
           setIsLoading(false); // 에러 발생 시에도 로딩 상태 종료
@@ -136,6 +136,10 @@ const NameLuck = () => {
     "luck8.webp",
     "luck9.webp",
   ];
+
+  const absoluteImagePath = (imageName) => {
+    return `${window.location.origin}/image/${imageName}`;
+  };
 
   return (
     <div className="name-compatibility-wrap">
@@ -224,7 +228,7 @@ const NameLuck = () => {
 
                 <img
                   className="luck-img"
-                  src={`${process.env.PUBLIC_URL}/image/${images[imgIndex]}`}
+                  src={absoluteImagePath(images[imgIndex])}
                   alt="todayluck"
                 />
 
@@ -244,8 +248,8 @@ const NameLuck = () => {
                 <div>
                   <ShareKakao
                     title="오늘의 운세"
-                    description={luckResult.luckTitle}
-                    imageUrl={`${process.env.PUBLIC_URL}/image/${images[imgIndex]}`}
+                    description={luckResult.luck}
+                    imageUrl={absoluteImagePath(images[imgIndex])}
                     link="https://www.petname.site"
                     buttonText="멍냥이 보러 가기"
                   />

@@ -42,7 +42,7 @@
 
     <select id="selectMessage" resultType="message">
         SELECT * FROM message_tbl
-        WHERE name_no = #{nameNo} AND status = 2
+        WHERE name_no = #{nameNo} AND status = 1
         ORDER BY message_date ASC
     </select>
 

@@ -44,6 +44,7 @@ const Input2 = (props) => {
     blurEvent,
     changeEvent,
     keyPressEvent,
+    onKeyDown, // 추가된 부분
     className,
     disabled = false,
     placeholder,
@@ -61,18 +62,21 @@ const Input2 = (props) => {
 
   return (
     <input
-      className={className}
-      id={id}
       type={type}
-      value={data || ""} // null이나 undefined일 때 공백처리
+      value={data}
       onChange={changeData}
       onBlur={blurEvent}
+      onKeyPress={keyPressEvent}
+      onKeyDown={onKeyDown} // 추가된 부분
+      className={className}
       disabled={disabled}
       placeholder={placeholder}
-      onKeyDown={keyPressEvent} // onKeyPress 이벤트 연결
+      id={id}
     />
   );
 };
+
+export default Input2;
 
 const Check = (props) => {
   const { id, checked, onChange } = props;

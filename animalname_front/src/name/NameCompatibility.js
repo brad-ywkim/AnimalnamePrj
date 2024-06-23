@@ -78,7 +78,7 @@ const NameCompatibility = () => {
           setTimeout(() => {
             setCompatibilityResult(res.data.data);
             setIsLoading(false); // 로딩 상태 종료
-          }, 4000); // 4초 대기
+          }, 3000); // 3초 대기
         })
         .catch((res) => {
           setIsLoading(false); // 에러 발생 시에도 로딩 상태 종료
@@ -94,7 +94,11 @@ const NameCompatibility = () => {
         // console.log(res.data.data);
       })
       .catch((res) => {});
-  }, []);
+  }, [backServer]);
+
+  const absoluteImagePath = (imageName) => {
+    return `${window.location.origin}/${imageName}`;
+  };
 
   return (
     <div className="name-compatibility-wrap">
@@ -302,10 +306,7 @@ const NameCompatibility = () => {
                   {name1} <span style={{ fontWeight: 400 }}>님과</span> {name2}{" "}
                   <span style={{ fontWeight: 400 }}>님의 궁합</span> 🍀
                 </h3>
-                <img
-                  src={process.env.PUBLIC_URL + "/" + img}
-                  alt="dog-compatibility"
-                />
+                <img src={absoluteImagePath(img)} alt="dog-compatibility" />
                 <p id="compatibility-score-title" style={{ fontSize: "16px" }}>
                   궁합점수 <span>{compatibilityResult.compatibilityScore}</span>
                   점
@@ -318,8 +319,8 @@ const NameCompatibility = () => {
                 <div className="share-btn">
                   <ShareKakao
                     title={`${name1}와 ${name2}의 궁합 결과`}
-                    description={`궁합점수: ${compatibilityResult.compatibilityScore}점`}
-                    imageUrl={process.env.PUBLIC_URL + "/image/" + img}
+                    description={`${compatibilityResult.compatibilityResult}`}
+                    imageUrl={absoluteImagePath(img)}
                     link="https://www.petname.site"
                     buttonText="멍냥이 보러 가기"
                   />
