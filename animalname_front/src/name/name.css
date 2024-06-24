@@ -659,3 +659,9 @@ h3 {
     transform: translateX(-350px);
   }
 }
+
+.messages-area {
+  height: 300px; /* 적절한 높이로 설정하세요 */
+  overflow-y: scroll;
+  overflow-x: hidden; /* 가로 스크롤이 필요 없도록 설정 */
+}

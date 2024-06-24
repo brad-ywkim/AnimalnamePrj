@@ -21,31 +21,16 @@ const NameDetail = () => {
   const [messageContent, setMessageContent] = useState("");
   const [refreshMessages, setRefreshMessages] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [moveCount, setMoveCount] = useState(0);
   const KAKAOTALK_SHART = process.env.KAKAOTALK_SHART;
 
   useEffect(() => {
-    // 로컬스토리지에서 moveCount와 timestamp 가져오기
-    const storedMoveCount = parseInt(localStorage.getItem("moveCount")) || 0;
-    const storedTimestamp =
-      parseInt(localStorage.getItem("timestamp")) || Date.now();
-
-    // 30초 후 초기화
-    if (Date.now() - storedTimestamp > 30000) {
-      setMoveCount(0);
-      localStorage.setItem("moveCount", 0);
-      localStorage.setItem("timestamp", Date.now());
-    } else {
-      setMoveCount(storedMoveCount);
-    }
-
     axios
       .get(backServer + "/animalname/animal-detail/" + nameNo)
       .then((res) => {
         setNameData(res.data.data);
       })
       .catch((error) => {
-        // console.error("Error fetching dog info:", error);
+        console.error("Error fetching dog info:", error);
       });
   }, [backServer, nameNo]);
 
@@ -64,37 +49,33 @@ const NameDetail = () => {
   }, [refreshMessages, backServer, nameNo]);
 
   const randomMove = () => {
-    const storedTimestamp =
-      parseInt(localStorage.getItem("timestamp")) || Date.now();
-
-    // 30초 후 초기화
-    if (Date.now() - storedTimestamp > 30000) {
-      setMoveCount(0);
-      localStorage.setItem("moveCount", 0);
-      localStorage.setItem("timestamp", Date.now());
-    }
-
     const maxNameNo = 15047;
     const randomNameNo = Math.floor(Math.random() * maxNameNo) + 1;
+    navigate(`/name-detail/${randomNameNo}`);
+  };
 
-    if (moveCount < 10) {
-      const newMoveCount = moveCount + 1;
-      setMoveCount(newMoveCount);
-      localStorage.setItem("moveCount", newMoveCount);
-      navigate(`/name-detail/${randomNameNo}`);
-    } else {
+  const handleRandomMove = () => {
+    const storedMoveCount = parseInt(localStorage.getItem("moveCount")) || 0;
+    const storedTimestamp =
+      parseInt(localStorage.getItem("moveTimestamp")) || Date.now();
+
+    if (Date.now() - storedTimestamp > 30000) {
+      localStorage.setItem("moveCount", 0);
+      localStorage.setItem("moveTimestamp", Date.now());
+      randomMove();
+    } else if (storedMoveCount >= 20) {
       Swal.fire({
         title: "순간이동 횟수 초과",
-        text: "순간이동은 10번까지 가능합니다. 30초 후 다시 시도해 주세요.",
+        text: "순간이동은 30초당 20회까지 가능합니다. 잠시 후 다시 시도해 주세요.",
         icon: "info",
         confirmButtonText: "확인",
-        customClass: {
-          popup: "swal-popup-custom",
-          title: "swal-title-custom",
-          content: "swal-content-custom",
-        },
         width: "300px",
       });
+    } else {
+      randomMove();
+      const newMoveCount = storedMoveCount + 1;
+      localStorage.setItem("moveCount", newMoveCount);
+      localStorage.setItem("moveTimestamp", Date.now());
     }
   };
 
@@ -111,7 +92,7 @@ const NameDetail = () => {
         <div className="detail-another-animal-btn">
           <div
             className="move-random-animal styled-button random"
-            onClick={randomMove}
+            onClick={handleRandomMove}
           >
             순간이동
           </div>
@@ -248,11 +229,9 @@ const ChatComponent = (props) => {
     scrollToBottom();
   }, [messages]);
 
-  // .env 파일에서 금지 단어를 불러와서 배열로 변환
   const badWords = process.env.REACT_APP_BAD_WORDS.split(",");
 
   const sendMessage = () => {
-    // 비속어 체크
     const containsBadWord = badWords.some((word) =>
       messageContent.includes(word.trim())
     );
@@ -273,13 +252,11 @@ const ChatComponent = (props) => {
       return;
     }
 
-    // 로컬스토리지에서 messageCount와 timestamp 가져오기
     const storedMessageCount =
       parseInt(localStorage.getItem("messageCount")) || 0;
     const storedTimestamp =
       parseInt(localStorage.getItem("messageTimestamp")) || Date.now();
 
-    // 30초 후 초기화
     if (Date.now() - storedTimestamp > 30000) {
       localStorage.setItem("messageCount", 0);
       localStorage.setItem("messageTimestamp", Date.now());
@@ -307,7 +284,7 @@ const ChatComponent = (props) => {
       confirmButtonText: "넹",
       denyButtonText: `아니용`,
       allowOutsideClick: false,
-      allowEnterKey: true, // Enter 키를 허용
+      allowEnterKey: true,
       preConfirm: () => {
         return new Promise((resolve) => {
           resolve(true);
@@ -329,7 +306,7 @@ const ChatComponent = (props) => {
             localStorage.setItem("messageTimestamp", Date.now());
           })
           .catch((error) => {
-            // console.log(error, "실패");
+            console.log(error, "실패");
           });
         Swal.fire({
           title: "🐶 ❣️",
@@ -359,7 +336,7 @@ const ChatComponent = (props) => {
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
-      event.preventDefault(); // 기본 동작을 막아야 합니다.
+      event.preventDefault();
       sendMessage();
     }
   };
@@ -404,7 +381,7 @@ const ChatComponent = (props) => {
             data={messageContent}
             setData={setMessageContent}
             changeEvent={handleChange}
-            onKeyDown={handleKeyDown} // Enter 키를 눌렀을 때 메시지를 보내기 위해 추가
+            onKeyDown={handleKeyDown}
           />
           <div
             className={`send ${!messageContent.trim() ? "disabled" : ""}`}

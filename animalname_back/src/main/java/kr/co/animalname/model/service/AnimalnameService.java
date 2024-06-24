@@ -59,7 +59,7 @@ public class AnimalnameService {
 	public Map<String, Object> selectAnimalname(int reqPage, String searchName) {
 		System.out.println("여기들ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ와?");
 
-		int numPerPage = 50; // 한 페이지당 게시물 수
+		int numPerPage = 15000; // 한 페이지당 게시물 수
 		int pageNaviSize = 5;
 		int totalCount = animalnameDao.selectTotalCount(searchName);
 		PageInfo pi = pagination.getPageInfo(reqPage, numPerPage, pageNaviSize, totalCount);
