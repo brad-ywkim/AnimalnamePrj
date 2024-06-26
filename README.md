@@ -5,8 +5,12 @@
 ## 개발 기간
 2024.05.30 ~ 2024.06.09
 
+## 서비스
+https://petname.site/name-stat
+
 ## ERD
 ![ERD이미지](https://github.com/sprintkim/animalname_prj/blob/169ea3cf9972c117d9b6d1d606ebd06e674d0862/animalname_erd.png)
+
 
 ## 개발 환경 및 기술 스택
 ### 백엔드
