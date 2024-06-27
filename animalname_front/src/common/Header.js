@@ -34,7 +34,7 @@ const Header = () => {
       <div className="header-wrap">
         <div className="header-content">
           <Link to="/" className="main-logo">
-            <h1>🐶 동물이름</h1>
+            <h1>🐶 멍냥이름</h1>
           </Link>
         </div>
         <div className="header-menu">

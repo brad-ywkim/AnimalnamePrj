@@ -21,12 +21,13 @@ const Main = () => {
   return (
     <>
       <div className="main-wrap">
-        <h3 style={{ fontWeight: 400 }}>대한민국 동물이름 검색 툴, 동물이름</h3>
+        <h3 style={{ fontWeight: 400 }}>대한민국 동물이름 검색 툴, 멍냥이름</h3>
 
         <p>
-          동물이름은 1,500만 반려인구 시대를 맞이하여 탄생한 쉽고 강력한
-          동물이름 정보 서비스입니다. 대한민국 강아지와 고양이들의 다채로운
-          이름을 만나보세요.
+          멍냥이름은 대한민국 1,500만 반려인구 시대를 맞이하여 탄생한 쉽고
+          강력한 동물이름 검색 툴입니다. 서울특별시 마포구, 송파구, 동대문구,
+          양천구에서 2019년, 2021년, 2024년에 작성하여 개방한 데이터를 기반으로
+          합니다.
         </p>
 
         <div className="terminal-loader">
@@ -55,7 +56,7 @@ const Main = () => {
                 <h4>
                   <CountUp end={milestone.operatingPeriod} duration={2.5} />
                 </h4>
-                <p>서비스 운영일수</p>
+                <p>운영일수</p>
               </div>
               <div className="milestone-item">
                 <h4>

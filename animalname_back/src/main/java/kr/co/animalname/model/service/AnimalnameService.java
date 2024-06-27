@@ -57,9 +57,8 @@ public class AnimalnameService {
 
 	@Cacheable(value = "animalnames", key = "#searchName + '_' + #reqPage")
 	public Map<String, Object> selectAnimalname(int reqPage, String searchName) {
-		System.out.println("여기들ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ와?");
 
-		int numPerPage = 15000; // 한 페이지당 게시물 수
+		int numPerPage = 100; // 한 페이지당 게시물 수
 		int pageNaviSize = 5;
 		int totalCount = animalnameDao.selectTotalCount(searchName);
 		PageInfo pi = pagination.getPageInfo(reqPage, numPerPage, pageNaviSize, totalCount);
@@ -100,7 +99,7 @@ public class AnimalnameService {
 	public Milestone selectMilestone() {
 		Milestone milestone = new Milestone();
 		LocalDate currentDate = LocalDate.now();
-		LocalDate startDate = LocalDate.of(2024, 6, 1);
+		LocalDate startDate = LocalDate.of(2024, 6, 9);
 
 		// 두 날짜 일수 계산
 		int operatingDays = (int) ChronoUnit.DAYS.between(currentDate, startDate);
